@@ -20,7 +20,7 @@ import java.net.URL;
 @ComponentScan
 @Slf4j
 
-@RequestMapping("/auth/kakao")
+@RequestMapping("/auth")
 public class KakaoTokenController {
     @Value("${kakao.secret}")
     String secret;
