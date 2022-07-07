@@ -1,9 +1,11 @@
-package com.ggm.webserver;
+package com.ggm.webserver.Controller;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -12,11 +14,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 // 로그인 요청 URL
-// https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=4df227a22d2c0a7a6bb9af0df21650c7&redirect_uri=http://localhost/kakaoToken/kakaoRedirect
-
+//kauth.kakao.com/oauth/authorize?client_id=9240bec26b639066d5ac5afdbaeb6bb0&redirect_uri=http://localhost/auth/kakao/callback&response_type=code
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("kakaoToken")
+@ComponentScan
+@Slf4j
+
+@RequestMapping("/auth/kakao")
 public class KakaoTokenController {
     @Value("${kakao.secret}")
     String secret;
@@ -27,27 +31,30 @@ public class KakaoTokenController {
     @Value("${kakao.authorize-uri}")
     String authorize_uri;
 
+
     @ResponseBody
-    @GetMapping("/kakaoLogin")
+    @GetMapping("/login")
     public void kakaoLogin(HttpServletResponse httpServletResponse) throws IOException {
         try {
             httpServletResponse.sendRedirect(authorize_uri);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
     }
 
-    // 참고 https://velog.io/@shwncho/Spring-Boot-%EC%B9%B4%EC%B9%B4%EC%98%A4-%EB%A1%9C%EA%B7%B8%EC%9D%B8-APIoAuth-2.0
-    
+//         참고 https://velog.io/@shwncho/Spring-Boot-%EC%B9%B4%EC%B9%B4%EC%98%A4-%EB%A1%9C%EA%B7%B8%EC%9D%B8-APIoAuth-2.0
+
     @ResponseBody
-    @GetMapping("/kakaoRedirect")
-    public String kakaoCallback(@RequestParam String code)
-    {
-        String access_Token="";
-        String refresh_Token ="";
+
+    @GetMapping("/callback")
+    public String kakaoCallback(@RequestParam String code) {
+
+        String access_Token = "";
+        String refresh_Token = "";
         String reqURL = "https://kauth.kakao.com/oauth/token";
 
-        try{
+        try {
             URL url = new URL(reqURL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -91,7 +98,7 @@ public class KakaoTokenController {
 
             br.close();
             bw.close();
-        }catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -99,13 +106,12 @@ public class KakaoTokenController {
     }
 
     @ResponseBody
-    @GetMapping("/getKakaoProfile")
-    public String getKakaoProfile(@RequestParam String token)
-    {
+    @GetMapping("/getkakaoprofile")
+    public String getKakaoProfile(@RequestParam(required = false) String token) {
         String reqURL = "https://kapi.kakao.com/v2/user/me";
         String resultString = "";
 
-        try{
+        try {
             URL url = new URL(reqURL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -120,9 +126,8 @@ public class KakaoTokenController {
             BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line = "";
             String result = "";
-
             while ((line = br.readLine()) != null) {
-                result += line;
+                result = result + line;
             }
             System.out.println("response body : " + result);
 
@@ -135,7 +140,7 @@ public class KakaoTokenController {
             int id = element.getAsJsonObject().get("id").getAsInt();
             boolean hasEmail = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("has_email").getAsBoolean();
             String email = "";
-            if(hasEmail){
+            if (hasEmail) {
                 email = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("email").getAsString();
             }
 
@@ -143,11 +148,12 @@ public class KakaoTokenController {
             System.out.println("email : " + email);
 
             br.close();
-        }catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
         return resultString;
     }
-
 }
+
+

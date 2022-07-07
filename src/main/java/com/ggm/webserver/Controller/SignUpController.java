@@ -1,4 +1,4 @@
-package com.ggm.webserver;
+package com.ggm.webserver.Controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("signUp")
+@RequestMapping("/signUp")
 public class SignUpController {
 
     @ResponseBody
@@ -35,5 +35,10 @@ public class SignUpController {
         //TODO 성공이면 클라이언트는 다시 /oauth2/kakao 요청을 보낸다 => 로그인 프로세스로 진행
 
         return "addMoreInfo";
+    }
+
+    @GetMapping("/temp")
+    public String temp() {
+        return "temp";
     }
 }

@@ -1,4 +1,4 @@
-package com.ggm.webserver;
+package com.ggm.webserver.Controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("user")
+@RequestMapping("/user")
 public class UserController {
 
     @ResponseBody
